@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilija – Full Autonomy Edition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #e6edf3; font-family: 'Segoe UI', monospace; height: 100vh; display: flex; flex-direction: column; }
+
+  /* Header */
+  header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 20px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 1.2em; color: #58a6ff; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #3fb950; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .provider-badge { margin-left: auto; background: #1f2d3d; border: 1px solid #388bfd; color: #58a6ff; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; }
+
+  /* Stats Bar */
+  .stats-bar { background: #161b22; border-bottom: 1px solid #30363d; padding: 8px 20px; display: flex; gap: 20px; font-size: 0.82em; color: #8b949e; }
+  .stat { display: flex; gap: 6px; }
+  .stat span { color: #58a6ff; font-weight: bold; }
+
+  /* Main Layout */
+  main { flex: 1; display: flex; overflow: hidden; }
+
+  /* Left: Activity Log */
+  .log-panel { width: 340px; border-right: 1px solid #30363d; display: flex; flex-direction: column; background: #0d1117; }
+  .panel-title { padding: 10px 16px; font-size: 0.78em; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #21262d; background: #161b22; }
+  .log-entries { flex: 1; overflow-y: auto; padding: 8px; }
+  .log-entry { padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.78em; line-height: 1.4; border-left: 3px solid transparent; }
+  .log-entry.info  { border-color: #388bfd; background: #1c2333; }
+  .log-entry.skill { border-color: #3fb950; background: #1c2d1e; }
+  .log-entry.warn  { border-color: #d29922; background: #2d2210; }
+  .log-entry.moltbook { border-color: #bc8cff; background: #1e1a2e; }
+  .log-time { color: #8b949e; font-size: 0.9em; }
+
+  /* Right: Chat */
+  .chat-panel { flex: 1; display: flex; flex-direction: column; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9em; line-height: 1.5; }
+  .msg.user { align-self: flex-end; background: #1f6feb; color: #fff; border-bottom-right-radius: 3px; }
+  .msg.ilija { align-self: flex-start; background: #161b22; border: 1px solid #30363d; border-bottom-left-radius: 3px; }
+  .msg.ilija .skill-tag { display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1f2d3d; border-radius: 8px; font-size: 0.78em; color: #58a6ff; }
+  .msg.system { align-self: center; background: #1c2333; color: #8b949e; font-size: 0.8em; padding: 6px 12px; border-radius: 8px; }
+
+  /* Input */
+  .chat-input-area { border-top: 1px solid #30363d; padding: 12px 16px; display: flex; gap: 8px; background: #161b22; }
+  .chat-input-area input { flex: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 10px 14px; color: #e6edf3; font-size: 0.9em; outline: none; }
+  .chat-input-area input:focus { border-color: #388bfd; }
+  .send-btn { background: #1f6feb; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; font-size: 0.9em; transition: background 0.2s; }
+  .send-btn:hover { background: #388bfd; }
+  .send-btn:disabled { background: #30363d; cursor: not-allowed; }
+
+  /* Provider Selector */
+  .provider-select { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 8px; padding: 9px 8px; font-size: 0.85em; }
+
+  /* Typing indicator */
+  .typing { display: flex; gap: 4px; padding: 10px 14px; }
+  .typing span { width: 8px; height: 8px; background: #58a6ff; border-radius: 50%; animation: bounce 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0d1117; }
+  ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="status-dot" id="statusDot"></div>
+  <h1>🤖 Ilija – Full Autonomy Edition</h1>
+  <div class="provider-badge" id="providerBadge">Laden...</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">Skills: <span id="statSkills">-</span></div>
+  <div class="stat">Provider: <span id="statProvider">-</span></div>
+  <div class="stat">History: <span id="statHistory">-</span></div>
+  <div class="stat">Status: <span id="statState">-</span></div>
+</div>
+
+<main>
+  <!-- Activity Log -->
+  <div class="log-panel">
+    <div class="panel-title">⚡ Live Activity</div>
+    <div class="log-entries" id="logEntries">
+      <div class="log-entry info"><span class="log-time">--:--</span> Verbinde...</div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-panel">
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg system">Ilija ist bereit. Stelle eine Frage oder gib einen Befehl.</div>
+    </div>
+    <div class="chat-input-area">
+      <select class="provider-select" id="providerSelect">
+        <option value="auto">Auto</option>
+        <option value="gemini">Gemini</option>
+        <option value="ollama">Ollama</option>
+        <option value="claude">Claude</option>
+        <option value="gpt">GPT</option>
+      </select>
+      <input type="text" id="chatInput" placeholder="Nachricht an Ilija..." autocomplete="off" />
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">Senden</button>
+    </div>
+  </div>
+</main>
+
+<script>
+let logEntries = [];
+
+// Stats aktualisieren
+async function updateStats() {
+  try {
+    const r = await fetch('/api/stats');
+    const d = await r.json();
+    document.getElementById('statSkills').textContent = d.skills || 0;
+    document.getElementById('statProvider').textContent = d.provider || 'none';
+    document.getElementById('statHistory').textContent = d.history || 0;
+    document.getElementById('statState').textContent = d.state || 'IDLE';
+    document.getElementById('providerBadge').textContent = (d.provider || 'none').toUpperCase();
+
+    const dot = document.getElementById('statusDot');
+    dot.style.background = d.state === 'IDLE' ? '#3fb950' : '#d29922';
+  } catch(e) {}
+}
+
+// Log-Datei lesen
+async function updateLog() {
+  try {
+    const r = await fetch('/api/log');
+    const d = await r.json();
+    if (d.lines && d.lines.length > 0) {
+      const container = document.getElementById('logEntries');
+      container.innerHTML = '';
+      d.lines.slice(-40).forEach(line => {
+        const div = document.createElement('div');
+        let cls = 'info';
+        if (line.includes('moltbook') || line.includes('Moltbook')) cls = 'moltbook';
+        else if (line.includes('Skill') || line.includes('skill')) cls = 'skill';
+        else if (line.includes('WARNING') || line.includes('Fehler')) cls = 'warn';
+        div.className = `log-entry ${cls}`;
+        // Zeit extrahieren
+        const match = line.match(/\d{2}:\d{2}:\d{2}/);
+        const time = match ? match[0] : '';
+        const text = line.replace(/.*INFO\s+\w+\s+[–-]\s*/, '').replace(/.*WARNING\s+\w+\s+[–-]\s*/, '').substring(0, 120);
+        div.innerHTML = `<span class="log-time">${time}</span> ${text}`;
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+  } catch(e) {
+    // Fallback: leere Log-Einträge
+  }
+}
+
+// Nachricht senden
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const provider = document.getElementById('providerSelect').value;
+  input.value = '';
+
+  // User-Nachricht anzeigen
+  addMessage(msg, 'user');
+
+  // Typing indicator
+  const typingId = addTyping();
+  document.getElementById('sendBtn').disabled = true;
+
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ message: msg, provider })
+    });
+    const d = await r.json();
+    removeTyping(typingId);
+
+    if (d.error) {
+      addMessage(`Fehler: ${d.error}`, 'ilija', null);
+    } else {
+      addMessage(d.response || '(keine Antwort)', 'ilija', d.skill);
+    }
+    updateStats();
+  } catch(e) {
+    removeTyping(typingId);
+    addMessage('Verbindungsfehler.', 'ilija', null);
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function addMessage(text, role, skill) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  if (skill) {
+    const tag = document.createElement('div');
+    tag.className = 'skill-tag';
+    tag.textContent = `🔧 ${skill}`;
+    div.appendChild(tag);
+  }
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  div.id = id;
+  div.className = 'msg ilija typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// Enter zum Senden
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+// Log-Endpunkt hinzufügen (falls nicht vorhanden, Fallback)
+async function loadLogFallback() {
+  const container = document.getElementById('logEntries');
+  try {
+    const r = await fetch('/api/log');
+    if (!r.ok) throw new Error();
+    updateLog();
+  } catch {
+    container.innerHTML = '<div class="log-entry info">Log lädt... (Ilija arbeitet im Hintergrund)</div>';
+  }
+}
+
+// Init
+updateStats();
+loadLogFallback();
+setInterval(updateStats, 5000);
+setInterval(updateLog, 8000);
+</script>
+</body>
+</html>

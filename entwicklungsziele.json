@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "ziel": "Sicherer werden gegen Prompt-Injection über Social Media und WhatsApp",
+    "erstellt": "2026-02-28T12:08:27.908533"
+  },
+  {
+    "id": 2,
+    "ziel": "Stabilen Datenfluss zwischen autonomen Loop-Schritten sicherstellen",
+    "erstellt": "2026-02-28T12:08:27.908863"
+  },
+  {
+    "id": 3,
+    "ziel": "Wetter-Skill zuverlässig ohne API implementieren",
+    "erstellt": "2026-02-28T12:08:27.909170"
+  },
+  {
+    "id": 4,
+    "ziel": "Stabilen Datenfluss zwischen Loop-Schritten sicherstellen",
+    "erstellt": "2026-02-28T12:12:34.521711"
+  },
+  {
+    "id": 5,
+    "ziel": "Wetter-Skill zuverlässig ohne externe API implementieren",
+    "erstellt": "2026-02-28T12:12:34.522092"
+  }
+]

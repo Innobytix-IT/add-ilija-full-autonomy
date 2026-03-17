@@ -1,0 +1,25 @@
+# Offenes Leuchten v5.0 - Web Edition Dependencies
+
+# Core Dependencies
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# Cloud LLM Providers
+anthropic>=0.40.0           # Claude (EMPFOHLEN!)
+openai>=1.54.0              # ChatGPT
+requests>=2.31.0            # Für Gemini REST API
+
+# Ollama (lokal)
+ollama>=0.1.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Web Server
+Flask>=3.0.0
+flask-cors>=4.0.0
+
+
+selenium
+beautifulsoup4
+webdriver-manager
