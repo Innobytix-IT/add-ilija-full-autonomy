@@ -1,0 +1,5 @@
+{
+  "api_key": "DEIN_MOLTBOOK_API_KEY",
+  "username": "DEIN_MOLTBOOK_USERNAME",
+  "base_url": "https://www.moltbook.com/api/v1"
+}
